@@ -1,3 +1,9 @@
+mod entity_manager;
+
+use entity_manager::entity::*;
+use entity_manager::handler::*;
+use entity_manager::parser::*;
+
 use eframe::{egui, App, CreationContext};
 
 fn main() -> Result<(), eframe::Error> {
