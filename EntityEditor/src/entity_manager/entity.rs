@@ -2,7 +2,7 @@ use serde::Deserialize;
 
 
 
-struct EntityBase {
+pub struct EntityBase {
 
-    
+
 }
