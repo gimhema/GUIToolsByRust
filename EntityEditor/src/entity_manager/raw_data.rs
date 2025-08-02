@@ -3,10 +3,10 @@ use std::fs::File;
 
 
 struct RawData {
-    
+
 }
 
-struct DataParser
+struct RawDataBox
 {
 
 }

@@ -2,7 +2,7 @@ mod entity_manager;
 
 use entity_manager::entity::*;
 use entity_manager::handler::*;
-use entity_manager::parser::*;
+use entity_manager::raw_data::*;
 
 use eframe::{egui, App, CreationContext};
 
