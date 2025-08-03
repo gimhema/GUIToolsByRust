@@ -6,7 +6,7 @@ use std::fs::File;
 
 pub trait EntityBox {
     fn load_data(&mut self) -> Result<(), Box<dyn std::error::Error>>;
-    fn save_data(&mut self);
+    fn save_data(&mut self) -> Result<(), Box<dyn Error>>;
 }
 
 #[derive(Debug, Clone)]
@@ -116,7 +116,96 @@ impl EntityBox for CharacterEntityContainer {
         Ok(())
     }
 
-    fn save_data(&mut self) {
+    fn save_data(&mut self) -> Result<(), Box<dyn Error>> {
         // Save data logic here
+
+        {
+            // Save character info data
+
+            let file_path = self.characeter_info_data_path.as_str();
+            let mut rdr = csv::Reader::from_path(file_path)?;
+
+            // 모든 행을 메모리에 로드
+            let mut records: Vec<RawDataCharacterInfo> = vec![];
+
+            for result in rdr.deserialize() {
+                let mut record: RawDataCharacterInfo = result?;
+
+                // 조건에 맞는 값 수정
+                self.get_entity(record.unique)
+                    .map(|entity| {
+                        record.unique = entity.character_info.unique;
+                        record.name = entity.character_info.name.clone();
+                    });
+                records.push(record);
+            }
+
+            let mut wtr = csv::Writer::from_path(file_path)?;
+            for record in records {
+                wtr.serialize(record)?;
+            }
+            wtr.flush()?;
+
+        }
+
+        {
+            // Save character status info data
+            let file_path = self.character_status_info_data_path.as_str();
+            let mut rdr = csv::Reader::from_path(file_path)?;
+
+            let mut records: Vec<RawDataCharacterStatusInfo> = vec![];
+
+            for result in rdr.deserialize() {
+                let mut record: RawDataCharacterStatusInfo = result?;
+
+                // 조건에 맞는 값 수정
+                self.get_entity(record.unique)
+                    .map(|entity| {
+                        record.unique = entity.character_status_info.unique;
+                        record.health = entity.character_status_info.health;
+                        record.mana = entity.character_status_info.mana;
+                        record.stamina = entity.character_status_info.stamina;
+                    });
+                records.push(record);
+            }
+
+            let mut wtr = csv::Writer::from_path(file_path)?;
+            for record in records {
+                wtr.serialize(record)?;
+            }
+            wtr.flush()?;
+        }
+
+        {
+            // Save character attack info data
+            let file_path = self.character_attack_info_data_path.as_str();
+            let mut rdr = csv::Reader::from_path(file_path)?;
+
+            let mut records: Vec<RawDataCharacterAttackInfo> = vec![];
+
+            for result in rdr.deserialize() {
+                let mut record: RawDataCharacterAttackInfo = result?;
+
+                // 조건에 맞는 값 수정
+                self.get_entity(record.unique)
+                    .map(|entity| {
+                        record.unique = entity.character_attack_info.unique;
+                        record.attack_power = entity.character_attack_info.attack_power;
+                        record.attack_speed = entity.character_attack_info.attack_speed;
+                    });
+                records.push(record);
+            }
+
+            let mut wtr = csv::Writer::from_path(file_path)?;
+            for record in records {
+                wtr.serialize(record)?;
+            }
+            wtr.flush()?;
+        }
+
+
+         
+
+        Ok(())
     }
 }

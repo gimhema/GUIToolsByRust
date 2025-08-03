@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use serde::Deserialize;
+use serde::Serialize;
 
-
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RawDataCharacterInfo {
     pub unique: u32,
     pub name: String,
@@ -17,7 +17,7 @@ impl RawDataCharacterInfo {
     }
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Serialize,  Clone)]
 pub struct RawDataCharacterStatusInfo {
     pub unique: u32,
     pub health: u32,
@@ -37,7 +37,7 @@ impl RawDataCharacterStatusInfo {
 }
 
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Serialize,  Clone)]
 pub struct RawDataCharacterAttackInfo {
     pub unique: u32,
     pub attack_power: u32,
