@@ -4,24 +4,53 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct RawDataCharacterInfo {
-    unique: u32,
-    name: String,
+    pub unique: u32,
+    pub name: String,
+}
+
+impl RawDataCharacterInfo {
+    pub fn new_zero() -> Self {
+        RawDataCharacterInfo {
+            unique: 0,
+            name: String::new(),
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct RawDataCharacterStatusInfo {
-    unique: u32,
-    health: u32,
-    mana: u32,
-    stamina: u32,
+    pub unique: u32,
+    pub health: u32,
+    pub mana: u32,
+    pub stamina: u32,
+}
+
+impl RawDataCharacterStatusInfo {
+    pub fn new_zero() -> Self {
+        RawDataCharacterStatusInfo {
+            unique: 0,
+            health: 0,
+            mana: 0,
+            stamina: 0,
+        }
+    }
 }
 
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct RawDataCharacterAttackInfo {
-    unique: u32,
-    attack_power: u32,
-    attack_speed: f32,
+    pub unique: u32,
+    pub attack_power: u32,
+    pub attack_speed: f32,
 }
 
+impl RawDataCharacterAttackInfo {
+    pub fn new_zero() -> Self {
+        RawDataCharacterAttackInfo {
+            unique: 0,
+            attack_power: 0,
+            attack_speed: 0.0,
+        }
+    }
+}
 

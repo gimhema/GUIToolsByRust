@@ -41,6 +41,18 @@ impl CharacterEntityContainer {
         self.entities.get(&unique)
     }
 
+    pub fn update_character_entity_status(&mut self, unique: u32, status_info: RawDataCharacterStatusInfo) {
+        if let Some(entity) = self.entities.get_mut(&unique) {
+            entity.character_status_info = status_info;
+        }
+    }
+
+    pub fn update_character_entity_attack_info(&mut self, unique: u32, attack_info: RawDataCharacterAttackInfo) {
+        if let Some(entity) = self.entities.get_mut(&unique) {
+            entity.character_attack_info = attack_info;
+        }
+    }
+
     pub fn remove_entity(&mut self, unique: u32) {
         self.entities.remove(&unique);
     }
@@ -54,6 +66,13 @@ impl EntityBox for CharacterEntityContainer {
             let mut rdr = csv::Reader::from_reader(file);
 
             for result in rdr.deserialize::<RawDataCharacterInfo>() {
+                let ref record = result?;
+                let entity = CharacterEntity {
+                    unique: record.unique.clone(),
+                    character_info: record.clone(),
+                    character_status_info: RawDataCharacterStatusInfo::new_zero(),
+                    character_attack_info: RawDataCharacterAttackInfo::new_zero()
+                };
                 // let record = result?;
                 // println!("{:?}", record);
             }
