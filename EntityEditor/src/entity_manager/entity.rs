@@ -1,13 +1,11 @@
 use serde::Deserialize;
+use super::raw_data::*;
 
 
 
 pub struct CharacterBase {
     unique: u32,
-    name: String,
-    health: u32,
-    mana: u32,
-    stamina: u32,
-    attack_power: u32,
-    attack_speed: f32,
+    character_info : RawDataCharacterInfo,
+    character_status_info: RawDataCharacterStatusInfo,
+    character_attack_info: RawDataCharacterAttackInfo,
 }
