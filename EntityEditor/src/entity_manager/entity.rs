@@ -9,6 +9,7 @@ pub trait EntityBox {
     fn save_data(&mut self);
 }
 
+#[derive(Debug, Clone)]
 pub struct CharacterEntity {
     unique: u32,
     character_info : RawDataCharacterInfo,
@@ -73,8 +74,7 @@ impl EntityBox for CharacterEntityContainer {
                     character_status_info: RawDataCharacterStatusInfo::new_zero(),
                     character_attack_info: RawDataCharacterAttackInfo::new_zero()
                 };
-                // let record = result?;
-                // println!("{:?}", record);
+                self.add_entity(entity);
             }
         }
 
@@ -83,8 +83,17 @@ impl EntityBox for CharacterEntityContainer {
             let mut rdr = csv::Reader::from_reader(file);
 
             for result in rdr.deserialize::<RawDataCharacterStatusInfo>() {
-                // let record = result?;
-                // println!("{:?}", record);
+                let status_info = result?;
+                let unique = status_info.unique;
+                let health = status_info.health;
+                let mana = status_info.mana;
+                let stamina = status_info.stamina;
+                self.update_character_entity_status(unique, RawDataCharacterStatusInfo {
+                    unique,
+                    health,
+                    mana,
+                    stamina,
+                });
             }
         }
 
@@ -93,14 +102,17 @@ impl EntityBox for CharacterEntityContainer {
             let mut rdr = csv::Reader::from_reader(file);
 
             for result in rdr.deserialize::<RawDataCharacterAttackInfo>() {
-                // let record = result?;
-                // println!("{:?}", record);
+                let attack_info = result?;
+                let unique = attack_info.unique;
+                let attack_power = attack_info.attack_power;
+                let attack_speed = attack_info.attack_speed;
+                self.update_character_entity_attack_info(unique, RawDataCharacterAttackInfo {
+                    unique,
+                    attack_power,
+                    attack_speed,
+                });
             }
         } 
-
-
-
-
         Ok(())
     }
 
