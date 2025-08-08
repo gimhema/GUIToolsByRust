@@ -77,6 +77,13 @@ impl App for EditorApp {
         egui::SidePanel::left("navigation_panel").show(ctx, |ui| {
             ui.heading("📁 모듈 트리");
 
+            // 메인 화면으로 돌아가기 버튼
+            if ui.button("🏠 메인 화면으로").clicked() {
+                self.selected_item = None;
+            }
+
+            ui.separator(); // 구분선
+
             // Entity 트리
             ui.collapsing("📦 entity", |ui| {
                 for name in ["EntityA", "EntityB"] {
@@ -153,35 +160,7 @@ impl App for EditorApp {
                 }
 
                 None => {
-                    ui.heading("📝 기본 리소스 에디터");
-
-                    ui.horizontal(|ui| {
-                        let input = ui.text_edit_singleline(&mut self.input);
-                        if ui.button("➕ 추가").clicked()
-                            || (input.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)))
-                        {
-                            if !self.input.trim().is_empty() {
-                                self.todos.push(TodoItem {
-                                    text: self.input.trim().to_string(),
-                                    done: false,
-                                });
-                                self.input.clear();
-                            }
-                        }
-                    });
-
-                    ui.separator();
-
-                    for todo in &mut self.todos {
-                        ui.horizontal(|ui| {
-                            ui.checkbox(&mut todo.done, "");
-                            if todo.done {
-                                ui.label(egui::RichText::new(&todo.text).strikethrough());
-                            } else {
-                                ui.label(&todo.text);
-                            }
-                        });
-                    }
+                    ui.heading("📝 Main View");
                 }
             }
         });
