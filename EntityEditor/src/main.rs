@@ -16,13 +16,11 @@ fn main() -> Result<(), eframe::Error> {
     )
 }
 
-// 간단한 ToDo 아이템
 struct TodoItem {
     text: String,
     done: bool,
 }
 
-// 속성 편집을 위한 enum
 #[derive(Debug, Clone)]
 enum ItemData {
     Entity { name: String, is_active: bool },
@@ -30,11 +28,15 @@ enum ItemData {
     RawData { description: String },
 }
 
-// 메인 앱 구조체
 struct EditorApp {
     input: String,
     todos: Vec<TodoItem>,
     selected_item: Option<ItemData>,
+
+    show_item_list_view: bool,
+    item_list: Vec<String>,
+    selected_list_index: usize,
+    selected_item_result: Option<String>,
 }
 
 impl Default for EditorApp {
@@ -43,6 +45,10 @@ impl Default for EditorApp {
             input: String::new(),
             todos: vec![],
             selected_item: None,
+            show_item_list_view: false,
+            item_list: vec!["사과".to_string(), "바나나".to_string(), "오렌지".to_string()],
+            selected_list_index: 0,
+            selected_item_result: None,
         }
     }
 }
@@ -73,18 +79,15 @@ impl EditorApp {
 
 impl App for EditorApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        // 좌측 트리 탐색기
         egui::SidePanel::left("navigation_panel").show(ctx, |ui| {
             ui.heading("📁 모듈 트리");
 
-            // 메인 화면으로 돌아가기 버튼
             if ui.button("🏠 메인 화면으로").clicked() {
                 self.selected_item = None;
             }
 
-            ui.separator(); // 구분선
+            ui.separator();
 
-            // Entity 트리
             ui.collapsing("📦 entity", |ui| {
                 for name in ["EntityA", "EntityB"] {
                     let is_selected = matches!(
@@ -100,7 +103,6 @@ impl App for EditorApp {
                 }
             });
 
-            // Handler 트리
             ui.collapsing("⚙ handler", |ui| {
                 for (index, name) in ["HandlerX", "HandlerY"].iter().enumerate() {
                     let is_selected = matches!(
@@ -116,7 +118,6 @@ impl App for EditorApp {
                 }
             });
 
-            // RawData 트리
             ui.collapsing("🗄 raw_data", |ui| {
                 for name in ["Data1", "Data2"] {
                     let is_selected = matches!(
@@ -132,7 +133,6 @@ impl App for EditorApp {
             });
         });
 
-        // 중앙 정보/편집 영역
         egui::CentralPanel::default().show(ctx, |ui| {
             match &mut self.selected_item {
                 Some(ItemData::Entity { name, is_active }) => {
@@ -161,7 +161,43 @@ impl App for EditorApp {
 
                 None => {
                     ui.heading("📝 Main View");
+
+                    if ui.button("항목 선택하기").clicked() {
+                        self.show_item_list_view = true;
+                    }
+
+                    if let Some(result) = &self.selected_item_result {
+                        ui.label(format!("선택한 항목: {}", result));
+                    }
                 }
+            }
+
+            // 팝업 창 띄우기
+            if self.show_item_list_view {
+                egui::Window::new("ItemListView")
+                    .collapsible(false)
+                    .resizable(false)
+                    .show(ctx, |ui| {
+                        ui.label("항목을 선택하세요:");
+
+                        egui::ComboBox::from_id_source("item_select_box")
+                            .selected_text(&self.item_list[self.selected_list_index])
+                            .show_ui(ui, |ui| {
+                                for (i, item) in self.item_list.iter().enumerate() {
+                                    ui.selectable_value(&mut self.selected_list_index, i, item);
+                                }
+                            });
+
+                        if ui.button("선택 완료").clicked() {
+                            self.selected_item_result =
+                                Some(self.item_list[self.selected_list_index].clone());
+                            self.show_item_list_view = false;
+                        }
+
+                        if ui.button("닫기").clicked() {
+                            self.show_item_list_view = false;
+                        }
+                    });
             }
         });
     }
