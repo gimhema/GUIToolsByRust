@@ -59,7 +59,7 @@ impl EditorApp {
         let mut fonts = FontDefinitions::default();
         fonts.font_data.insert(
             "my_korean_font".to_string(),
-            FontData::from_static(include_bytes!("../fonts/xxx.ttf")),
+            FontData::from_static(include_bytes!("fonts/korea_font.ttf")),
         );
         fonts
             .families
