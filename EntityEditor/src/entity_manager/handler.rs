@@ -1,32 +1,19 @@
 use super::entity::*;
-use super::raw_data::*;
 use std::error::Error;
-use std::fs::File;
-use std::collections::HashMap;
 
-
-pub enum RawDataKey {
-    Base,
-    End
-}
-
-pub struct EntityDataHanlder {
-//    raw_datas: HashMap<RawDataKey, RawDataBox>,
-}
+pub struct EntityDataHanlder;
 
 impl EntityDataHanlder {
-    pub fn new() -> Self {
-        EntityDataHanlder {
-        //    raw_datas: HashMap::new(),
+    pub fn new() -> Self { Self }
+
+    pub fn load_all(
+        &mut self,
+        container: &mut CharacterEntityContainer,
+        status_key_override: Option<&str>,
+    ) -> Result<(), Box<dyn Error>> {
+        if let Some(key) = status_key_override {
+            container.set_status_key_column_override(key);
         }
+        container.load_data()
     }
-
-    pub fn load_data(&mut self, path : &str) -> Result<(), Box<dyn Error>> {
-        let file = File::open(path)?;
-        let mut rdr = csv::Reader::from_reader(file);
-
-        Ok(())
-    }
-
-
 }
