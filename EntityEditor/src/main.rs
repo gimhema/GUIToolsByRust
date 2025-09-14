@@ -82,6 +82,8 @@ struct EditorApp {
     info_path: String,
     status_path: String,
     attack_path: String,
+// New Data file GuideLine Step 8:
+    skill_path: String,
 
     // 상태 키 컬럼 지정
     status_key_mode: StatusKeyMode,
@@ -104,6 +106,8 @@ impl Default for EditorApp {
             info_path: "src/data/character_info.csv".to_string(),
             status_path: "src/data/character_status_info.csv".to_string(),
             attack_path: "src/data/character_attack_info.txt".to_string(),
+            // New Data file GuideLine Step 9:
+            skill_path: "src/data/character_skill_info.txt".to_string(),
 
             status_key_mode: StatusKeyMode::Auto,
             custom_key_input: String::new(),
@@ -144,7 +148,12 @@ impl EditorApp {
 
         // 1) 중복 제거 (빈 키는 제외)
         let mut uniq: BTreeSet<String> = BTreeSet::new();
-        for k in ds.info.keys().chain(ds.status.keys()).chain(ds.attack.keys()) {
+        for k in 
+        ds.info.keys()
+        .chain(ds.status.keys())
+        .chain(ds.attack.keys())
+        .chain(ds.skill.keys()) // New Data file GuideLine Step 15:
+         {
             if !k.is_empty() {
                 uniq.insert(k.clone());
             }
@@ -170,6 +179,8 @@ impl EditorApp {
             &self.info_path,
             &self.status_path,
             &self.attack_path,
+            // New Data file GuideLine Step 10:            
+            &self.skill_path,
             &hint, // status key 힌트
         ) {
             Ok(ds) => {
@@ -181,7 +192,10 @@ impl EditorApp {
                     .next()
                     .cloned()
                     .or_else(|| ds.status.keys().next().cloned())
-                    .or_else(|| ds.attack.keys().next().cloned());
+                    .or_else(|| ds.attack.keys().next().cloned())
+                    
+                    // New Data file GuideLine Step 17:    
+                    .or_else(|| ds.skill.keys().next().cloned());
 
                 self.selected_key = first_key;
                 self.ds = Some(ds);
@@ -195,7 +209,13 @@ impl EditorApp {
 
     fn try_save(&mut self) {
         if let Some(ds) = &self.ds {
-            let res = ds.save_all(&self.info_path, &self.status_path, &self.attack_path);
+            let res = ds.save_all(
+                &self.info_path, 
+                &self.status_path, 
+                &self.attack_path,
+                // New Data file GuideLine Step 11:
+                &self.skill_path
+                );
             match res {
                 Ok(_) => self.last_message = "💾 저장 완료".into(),
                 Err(e) => self.last_message = format!("❌ 저장 실패: {e}"),
@@ -217,6 +237,11 @@ impl EditorApp {
 
         ui.label("character_attack_info.txt");
         ui.text_edit_singleline(&mut self.attack_path);
+        ui.add_space(8.0);
+
+        // New Data file GuideLine Step 16:
+        ui.label("character_skill_info.txt");
+        ui.text_edit_singleline(&mut self.skill_path);
         ui.add_space(8.0);
 
         ui.separator();
@@ -332,22 +357,38 @@ impl EditorApp {
             let mut info = ds.info.get(&selected_key).cloned();
             let mut status = ds.status.get(&selected_key).cloned();
             let mut attack = ds.attack.get(&selected_key).cloned();
+            // New Data file GuideLine Step 12:
+            let mut skill = ds.skill.get(&selected_key).cloned();
 
             ScrollArea::vertical()
-                .auto_shrink([false, false])
-                .show(ui, |ui| {
-                    if let Some(ref mut r) = info {
+            .auto_shrink([false, false])
+            .show(ui, |ui| {
+                // 블록을 쪼개서 빌림 충돌(여러 &mut 동시 대출) 피하기
+                {
+                    if let Some(r) = ds.info.get_mut(&selected_key) {
                         ui_entity_form(ui, "Info", &ds.info_schema, r);
                         ui.add_space(8.0);
                     }
-                    if let Some(ref mut r) = status {
+                }
+                {
+                    if let Some(r) = ds.status.get_mut(&selected_key) {
                         ui_entity_form(ui, "Status", &ds.status_schema, r);
                         ui.add_space(8.0);
                     }
-                    if let Some(ref mut r) = attack {
+                }
+                {
+                    if let Some(r) = ds.attack.get_mut(&selected_key) {
                         ui_entity_form(ui, "Attack", &ds.attack_schema, r);
                     }
-                });
+                }
+                // New Data file GuideLine Step 13:
+                {
+                    if let Some(r) = ds.skill.get_mut(&selected_key) {
+                        ui.add_space(8.0);
+                        ui_entity_form(ui, "Skill", &ds.skill_schema, r);
+                    }
+                }
+            });
 
             ui.add_space(8.0);
             if ui.button("✅ 변경사항 적용(메모리)").clicked() {
@@ -360,6 +401,10 @@ impl EditorApp {
                 }
                 if let Some(r) = attack {
                     ds.attack.insert(selected_key.clone(), r);
+                }
+                // New Data file GuideLine Step 14:
+                if let Some(r) = skill {
+                    ds.skill.insert(selected_key.clone(), r);
                 }
                 self.last_message = "🟢 메모리에 적용됨 (저장은 따로)".to_string();
             }
